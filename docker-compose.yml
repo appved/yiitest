@@ -1,0 +1,50 @@
+version: '3'
+services:
+    nginx:
+        build: ./docker/nginx/build
+        volumes:
+            - ./basic:/var/www/html
+            - ./docker/nginx/logs:/var/log/nginx
+            - ./docker/nginx/conf/proxy_params:/etc/nginx/proxy_params
+            - ./docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+            - ./docker/nginx/conf/site.conf:/etc/nginx/conf.d/default.template
+        ports:
+            - "80:80"
+        environment:
+            - NGINX_HOST=yiitest.loc
+        depends_on:
+            - php-apache
+    php-apache:
+        build: ./docker/php-apache/build-php7.3
+        environment:
+            - HTTPD_HOST=yiitest.loc
+        extra_hosts:
+            - "hybridcar.loc:127.0.0.1"
+        volumes:
+            - ./basic:/var/www/html
+            - ./docker/php-apache/logs:/var/log/apache2
+            - ./docker/php-apache/conf/apache2.conf:/etc/apache2/apache2.conf
+            - ./docker/php-apache/conf/envvars:/etc/apache2/envvars.template
+            - ./docker/php-apache/conf/default.conf:/etc/apache2/sites-available/000-default.template
+        depends_on:
+            - mysql
+    mysql:
+        image: mysql:5
+        environment:
+            - MYSQL_ROOT_PASSWORD=12341234
+            - MYSQL_DATABASE=basename
+            - MYSQL_USER=username
+            - MYSQL_PASSWORD=password
+        ports:
+            - "3306:3306"
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        environment:
+            - PMA_HOST=mysql
+            - PMA_PORT=3306
+            - PMA_USER=username
+            - PMA_PASSWORD=password
+        depends_on:
+            - mysql
+        ports:
+            - 8000:80

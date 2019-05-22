@@ -1,0 +1,4 @@
+/nbproject/private/
+/docker/nginx/logs/
+/docker/php-apache/logs/
+/docker/mysql/logs/
